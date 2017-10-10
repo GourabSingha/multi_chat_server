@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.net.*;
 
 public class client implements Runnable {
 
@@ -58,6 +59,8 @@ public class client implements Runnable {
 
         /* Create a thread to read from the server. */
         new Thread(new client()).start();
+        InetAddress localhost = InetAddress.getLocalHost();
+        os.println(localhost.getHostAddress());
         while (!closed) {
           os.println(inputLine.readLine().trim());
         }

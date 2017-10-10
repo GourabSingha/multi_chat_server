@@ -7,7 +7,7 @@ import java.net.ServerSocket;
 /*
  * A chat server that delivers public and private messages.
  */
-public class sever {
+public class server {
 
   // The server socket.
   private static ServerSocket serverSocket = null;
@@ -102,6 +102,8 @@ class clientThread extends Thread {
       os = new PrintStream(clientSocket.getOutputStream());
       String name;
       while (true) {
+        String ipAddress = is.readLine().trim();
+        System.out.println(ipAddress);
         os.println("Enter your name.");
         name = is.readLine().trim();
         if (name.indexOf('@') == -1) {
@@ -134,6 +136,7 @@ class clientThread extends Thread {
         if (line.startsWith("/quit")) {
           break;
         }
+
         /* If the message is private sent it to the given client. */
         if (line.startsWith("@")) {
           String[] words = line.split("\\s", 2);
