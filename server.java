@@ -78,11 +78,14 @@ public class server {
 class clientThread extends Thread {
 
   private String clientName = null;
+  private String ipAdd = null;
   private DataInputStream is = null;
   private PrintStream os = null;
   private Socket clientSocket = null;
   private final clientThread[] threads;
   private int maxClientsCount;
+  private int count;
+
 
   public clientThread(Socket clientSocket, clientThread[] threads) {
     this.clientSocket = clientSocket;
@@ -101,9 +104,9 @@ class clientThread extends Thread {
       is = new DataInputStream(clientSocket.getInputStream());
       os = new PrintStream(clientSocket.getOutputStream());
       String name;
+      String ipAddress;
       while (true) {
-        String ipAddress = is.readLine().trim();
-        System.out.println(ipAddress);
+        ipAddress = is.readLine().trim();
         os.println("Enter your name.");
         name = is.readLine().trim();
         if (name.indexOf('@') == -1) {
@@ -115,7 +118,7 @@ class clientThread extends Thread {
 
       /* Welcome the new the client. */
       os.println("Welcome " + name
-          + " to our chat room.\nTo leave enter /quit in a new line.");
+          + " to our chat room "+ ipAddress +".\nTo leave enter /quit in a new line.");
       synchronized (this) {
         for (int i = 0; i < maxClientsCount; i++) {
           if (threads[i] != null && threads[i] == this) {
@@ -125,8 +128,8 @@ class clientThread extends Thread {
         }
         for (int i = 0; i < maxClientsCount; i++) {
           if (threads[i] != null && threads[i] != this) {
-            threads[i].os.println("*** A new user " + name
-                + " entered the chat room !!! ***");
+            threads[i].os.println("*** A new user " + name +"  "+ ipAddress
+                            + " entered the chat room !!! ***");
           }
         }
       }
@@ -149,11 +152,15 @@ class clientThread extends Thread {
                       && threads[i].clientName != null
                       && threads[i].clientName.equals(words[0])) {
                     threads[i].os.println("<" + name + "> " + words[1]);
+                    if (words[1].length()>count){
+                      System.out.println(ipAddress+"   "+name+"  "+ words[1]);
+                      count = words[1].length();
+                    }
                     /*
                      * Echo this message to let the client know the private
                      * message was sent.
                      */
-                    this.os.println(">" + name + "> " + words[1]);
+                    this.os.println(">" + name + "> " + words[1]+"    >"+ ipAddress);
                     break;
                   }
                 }
@@ -163,6 +170,10 @@ class clientThread extends Thread {
         } else {
           /* The message is public, broadcast it to all other clients. */
           synchronized (this) {
+          if (line.length()>count){
+            System.out.println(ipAddress+"   "+name+"  "+ line);
+            count = line.length();
+            }
             for (int i = 0; i < maxClientsCount; i++) {
               if (threads[i] != null && threads[i].clientName != null) {
                 threads[i].os.println("<" + name + "> " + line);
